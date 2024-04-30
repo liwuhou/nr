@@ -1,0 +1,13 @@
+{
+  "name": "runner_test_package_json",
+  "version": "1.0.0",
+  "description": "For test",
+  "main": "src/main.rs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "echo start",
+    "build": "echo building"
+  },
+  "author": "liwuhou",
+  "license": "MIT"
+}

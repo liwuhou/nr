@@ -259,5 +259,33 @@ mod tests {
     }
 
     #[test]
-    fn find_user_script_ini() {}
+    fn test_project_info() -> Result<()> {
+        let (pwd, package_json) = get_project_info()?;
+
+        assert!(pwd.contains("runner"));
+        assert!(package_json.exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_get_package_scripts() -> Result<()> {
+        let (_, package_json) = get_project_info()?;
+
+        let mut scripts = get_scripts(&package_json)?
+            .iter()
+            .map(|x| x.1.clone())
+            .collect::<Vec<String>>();
+
+        assert_eq!(
+            &["test", "start", "build"]
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>()
+                .sort(),
+            &scripts.sort()
+        );
+
+        Ok(())
+    }
 }
