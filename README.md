@@ -6,11 +6,12 @@ Just `Runner run [script]`, fastly excute any node's project any script.
 Usage: runner <COMMAND>
 
 Commands:
-  run     Run any alias script or default
-  alias   Set alias to map script
-  delete  Delete alias
-  show    Show alias
-  help    Print this message or the help of the given subcommand(s)
+  run      Run any alias script or default
+  alias    Set alias to map script
+  delete   Delete alias
+  show     Show alias
+  install  Use the right package manager to install
+  help     Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help     Print help

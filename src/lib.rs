@@ -28,6 +28,10 @@ impl Cli {
                 let is_show_all = args.all.unwrap_or_default();
                 Ok(utils::show_alias(is_show_all)?)
             }
+            SubCmd::Install(args) => {
+                Ok(utils::install_modules(args.command)?)
+
+            }
         }
     }
 }
@@ -49,6 +53,8 @@ pub enum SubCmd {
     Delete(Delete),
     /// Show alias
     Show(Show),
+    /// Use the right package manager to install
+    Install(Install)
 }
 
 #[derive(Debug, Parser)]
@@ -77,6 +83,11 @@ pub struct Show {
         value_parser = parser_show_params
     )]
     pub all: Option<bool>,
+}
+
+#[derive(Debug, Parser)]
+pub struct Install {
+    command: Option<Vec<String>>
 }
 
 fn parser_show_params(is_show_all: &str) -> Result<bool> {

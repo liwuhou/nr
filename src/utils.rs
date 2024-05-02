@@ -147,6 +147,20 @@ fn get_selected_script(package_json: PathBuf) -> Result<String> {
     Ok(selected_script.to_owned())
 }
 
+fn get_right_pm() -> Result<String> {
+    let pwd = PathBuf::from(pwd()?);
+
+    if pwd.join("package-lock.json").exists() {
+        Ok(String::from("npm"))
+    } else if pwd.join("yarn.lock").exists() {
+        Ok(String::from("yarn"))
+    } else if pwd.join("pnpm-lock.yaml").exists() {
+        Ok(String::from("pnpm"))
+    } else {
+        Ok(String::from("npm"))
+    }
+}
+
 pub fn get_alias(script: Option<String>) -> String {
     match script {
         None => DEFAULT_SCRIPT.to_owned(),
@@ -157,16 +171,17 @@ pub fn get_alias(script: Option<String>) -> String {
 pub fn run_alias_script(script: &str) -> Result<bool> {
     let (current_path, package_json) = get_project_info()?;
     let mut config = get_config_ini()?;
+    let pm = get_right_pm()?;
 
     match config.with_section(Some(script)).get(&current_path) {
-        Some(script) => Ok(execute("npm", &vec!["run", script])?),
+        Some(script) => Ok(execute(&pm, &vec!["run", script])?),
         None => {
             let selected_script = get_selected_script(package_json)?;
             config
                 .with_section(Some(script))
                 .set(&current_path, &selected_script);
             save_alias_ini(config)?;
-            Ok(execute("npm", &vec!["run", &selected_script])?)
+            Ok(execute(&pm, &vec!["run", &selected_script])?)
         }
     }
 }
@@ -247,9 +262,34 @@ pub fn show_alias(is_show_all: bool) -> Result<bool> {
     Ok(true)
 }
 
+pub fn install_modules(input_args: Option<Vec<String>>) -> Result<bool> {
+    let pm = get_right_pm()?;
+    let mut args: Vec<String> = Vec::new();
+    let args = {
+        let input_args = input_args.unwrap_or_default();
+        if pm != "npm" && !input_args.is_empty() {
+            args.push("add".to_string());
+        } else {
+            args.push("install".to_string());
+        }
+        args.extend(input_args);
+        args
+    };
+
+    Ok(execute(&pm, &args.iter().map(String::as_str).collect())?)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_right_pm() -> Result<()> {
+        let pm = get_right_pm()?;
+
+        assert_eq!(String::from("pnpm"), pm);
+        Ok(())
+    }
 
     #[test]
     fn handle_alias_name() {
