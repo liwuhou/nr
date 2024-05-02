@@ -9,12 +9,7 @@
       "request": "launch",
       "name": "Debug unit tests in library 'runner'",
       "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--lib",
-          "--package=runner"
-        ],
+        "args": ["test", "--no-run", "--lib", "--package=runner"],
         "filter": {
           "name": "runner",
           "kind": "lib"
@@ -28,17 +23,13 @@
       "request": "launch",
       "name": "Debug executable 'runner'",
       "cargo": {
-        "args": [
-          "build",
-          "--bin=runner",
-          "--package=runner"
-        ],
+        "args": ["build", "--bin=runner", "--package=runner"],
         "filter": {
           "name": "runner",
           "kind": "bin"
         }
       },
-      "args": ["run", "a"],
+      "args": ["run", ""],
       "cwd": "${workspaceFolder}"
     },
     {
@@ -46,12 +37,7 @@
       "request": "launch",
       "name": "Debug unit tests in executable 'runner'",
       "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--bin=runner",
-          "--package=runner"
-        ],
+        "args": ["test", "--no-run", "--bin=runner", "--package=runner"],
         "filter": {
           "name": "runner",
           "kind": "bin"

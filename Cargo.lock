@@ -296,6 +296,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "01cda141df6706de531b6c46c3a33ecca755538219bd484262fa09410c13539c"
 
 [[package]]
+name = "nr"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "colored",
+ "dialoguer",
+ "dirs",
+ "rust-ini",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -344,20 +358,6 @@ dependencies = [
  "getrandom",
  "libredox",
  "thiserror",
-]
-
-[[package]]
-name = "runner"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "colored",
- "dialoguer",
- "dirs",
- "rust-ini",
- "serde",
- "serde_json",
 ]
 
 [[package]]

@@ -1,9 +1,9 @@
-use runner::Cli;
+use nr::Cli;
 
 fn main() {
     let result = Cli::run();
     match result {
         Ok(_) => (),
-        _ => (),
+        Err(e) => eprintln!("{}", e),
     }
 }

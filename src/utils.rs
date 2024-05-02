@@ -56,22 +56,29 @@ pub struct PackageInfo {
 }
 
 fn execute(command: &str, args: &Vec<&str>) -> Result<bool> {
-    let runner = Command::new(command)
+    if let Ok(runner) = Command::new(command)
         .args(args)
         .stdout(Stdio::piped())
-        .spawn()?;
+        .spawn()
+    {
+        let stdout = runner.stdout.expect("Can't get command's output!");
+        let stdout_reader = BufReader::new(stdout);
 
-    let stdout = runner.stdout.expect("Can't get command's output!");
-    let reader = BufReader::new(stdout);
-
-    for line in reader.lines() {
-        if let Ok(line) = line {
-            println!("{}", line);
-        } else {
-            eprintln!("fail to read");
+        for line in stdout_reader.lines() {
+            if let Ok(line) = line {
+                println!("{}", line);
+            } else {
+                console(State::Error, format!("Fail to execute command {}", command));
+            }
         }
+        Ok(true)
+    } else {
+        console(
+            State::Error,
+            format!("Can't found the command: {}", command),
+        );
+        Ok(false)
     }
-    Ok(true)
 }
 
 fn get_scripts(packagejson_path: &PathBuf) -> Result<Vec<(String, String)>> {
@@ -169,14 +176,14 @@ pub fn get_alias(script: Option<String>) -> String {
 }
 
 pub fn run_alias_script(script: &str) -> Result<bool> {
-    let (current_path, package_json) = get_project_info()?;
-    let mut config = get_config_ini()?;
+    let (current_path, package_json_path) = get_project_info().expect("111");
+    let mut config = get_config_ini().expect("hhh");
     let pm = get_right_pm()?;
 
     match config.with_section(Some(script)).get(&current_path) {
         Some(script) => Ok(execute(&pm, &vec!["run", script])?),
         None => {
-            let selected_script = get_selected_script(package_json)?;
+            let selected_script = get_selected_script(package_json_path)?;
             config
                 .with_section(Some(script))
                 .set(&current_path, &selected_script);
@@ -225,7 +232,7 @@ pub fn delete_alias_script(alias: &str) -> Result<bool> {
     }
 }
 
-pub fn show_alias(is_show_all: bool) -> Result<bool> {
+pub fn show_alias_list(is_show_all: bool) -> Result<bool> {
     let current_path = pwd()?;
     let config = get_config_ini()?;
     let mut result: HashMap<String, Vec<(String, String)>> = HashMap::new();

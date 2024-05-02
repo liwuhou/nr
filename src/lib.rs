@@ -14,6 +14,10 @@ impl Cli {
                 let script = utils::get_alias(args.alias_name);
                 Ok(utils::run_alias_script(&script)?)
             }
+            SubCmd::Ls(args) => {
+                let is_show_all = args.all.unwrap_or_default();
+                Ok(utils::show_alias_list(is_show_all)?)
+            }
             SubCmd::Alias(args) => {
                 let alias = utils::get_alias(args.alias_name);
                 let script = args.script;
@@ -24,10 +28,6 @@ impl Cli {
                 let delete_script = utils::get_alias(args.alias_name);
                 Ok(utils::delete_alias_script(&delete_script)?)
             }
-            SubCmd::Show(args) => {
-                let is_show_all = args.all.unwrap_or_default();
-                Ok(utils::show_alias(is_show_all)?)
-            }
             SubCmd::Install(args) => {
                 Ok(utils::install_modules(args.command)?)
 
@@ -37,7 +37,7 @@ impl Cli {
 }
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(author = "liwuhou", version, about, long_about = None)]
 pub struct Args {
     #[clap(subcommand)]
     pub subcmd: SubCmd,
@@ -47,12 +47,12 @@ pub struct Args {
 pub enum SubCmd {
     /// Run any alias script or default
     Run(Run),
+    /// Show alias script list
+    Ls(Ls),
     /// Set alias to map script
     Alias(Alias),
     /// Delete alias
     Delete(Delete),
-    /// Show alias
-    Show(Show),
     /// Use the right package manager to install
     Install(Install)
 }
@@ -74,7 +74,7 @@ pub struct Delete {
 }
 
 #[derive(Debug, Parser)]
-pub struct Show {
+pub struct Ls {
     #[arg(
         short, 
         long, 
