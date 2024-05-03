@@ -2,6 +2,8 @@
 
 Just `nr [script]`, fastly excute any node's project any script.
 
+![Example](./docs/example.svg)
+
 ```bash
 Usage: nr <COMMAND>
 
@@ -18,9 +20,11 @@ Options:
   -V, --version  Print version
 ```
 
-## Usage
+## Feature
 
-First run, you just need to `run`.
+### Npm Run
+
+Firstly run, you just need to `run`. `nr` **will use right package manage** to run the npm's script.
 
 ```bash
 nr run [alias] [script]
@@ -34,12 +38,40 @@ nr run [alias]
 
 Even if alias is empty, just excute it without any thinking!
 
-## Just install
+> [alias] is empty or `-`, will run the default alias.
+
+### Npm Install
 
 `nr` will **use right package manager** to instlal dependencies.
 
 ```bash
 nr install
-# or
-nr install -D [npm_package_name...]
+# npm install
+# yarn install
+# pnpm install
 ```
+
+```bash
+nr install -D [npm_package_name...]
+# npm install -D ...
+# yarn add -D ...
+# pnpm add -D ...
+```
+
+## Installtion
+
+### Using Cargo (Linux/macOS/Windows)
+
+```bash
+cargo add nr
+```
+
+### Using a release binary (Linux/macOS/Windows)
+
+- Download the [latest release binary](https://github.com/liwuhou/nr/releases) for your system
+- Make it available globally on PATH environment variable
+- Set up your shell for fnm
+
+### Homebrew/Scoop
+
+comming soon
