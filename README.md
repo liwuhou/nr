@@ -1,6 +1,10 @@
 # Npm Runner
 
+~~"sh\*t, I excue `npm start` script in vue-cli project again!"~~
+<br/>
 Just `nr [script]`, fastly excute any node's project any script.
+
+🌏[中文文档](./README_zh.md)
 
 ![Example](./docs/example.svg)
 
@@ -20,7 +24,7 @@ Options:
   -V, --version  Print version
 ```
 
-## Feature
+## Feature 🚀
 
 ### Npm Run
 
@@ -58,9 +62,9 @@ nr install -D [npm_package_name...]
 # pnpm add -D ...
 ```
 
-## Installtion
+## Installtion 🏋️‍♂️
 
-### Using Cargo (Linux/macOS/Windows)
+### Using Cargo 🦀 (Linux/macOS/Windows)
 
 ```bash
 cargo add nr
@@ -70,8 +74,8 @@ cargo add nr
 
 - Download the [latest release binary](https://github.com/liwuhou/nr/releases) for your system
 - Make it available globally on PATH environment variable
-- Set up your shell for fnm
+- Enjoy!
 
-### Homebrew/Scoop
+### Homebrew 🍺/Scoop
 
-comming soon
+Comming soon
