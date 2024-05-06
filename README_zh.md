@@ -64,18 +64,26 @@ nr install -D [npm_package_name...]
 
 ## 安装 🏋️‍♂️
 
-### Using Cargo 🦀 (Linux/macOS/Windows)
+### Using Cargo 🦀 (Linux/MacOS/Windows)
 
 ```bash
 cargo add nr
 ```
 
-### Using a release binary (Linux/macOS/Windows)
+### Using a release binary (Linux/MacOS/Windows)
 
 - 前往 [工程 release 页](https://github.com/liwuhou/nr/releases) 下载所属你系统的应用
 - 确保将命令行工具存放在你 `PATH` 环境目录下
 - 开始无脑使用
 
-### Homebrew 🍺/Scoop
+### Homebrew 🍺 (MacOS/Linux)
+
+```bash
+brew tap liwuhou/formulae
+
+brew install liwuhou/formulae/nr
+```
+
+### Scoop (Windows)
 
 Comming soon
