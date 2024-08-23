@@ -67,7 +67,7 @@ nr install -D [npm_package_name...]
 ### Using Cargo 🦀 (Linux/MacOS/Windows)
 
 ```bash
-cargo add nr
+cargo install nr
 ```
 
 ### Using a release binary (Linux/MacOS/Windows)
