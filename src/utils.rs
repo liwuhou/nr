@@ -176,8 +176,8 @@ pub fn get_alias(script: Option<String>) -> String {
 }
 
 pub fn run_alias_script(script: &str) -> Result<bool> {
-    let (current_path, package_json_path) = get_project_info().expect("111");
-    let mut config = get_config_ini().expect("hhh");
+    let (current_path, package_json_path) = get_project_info()?;
+    let mut config = get_config_ini()?;
     let pm = get_right_pm()?;
 
     match config.with_section(Some(script)).get(&current_path) {
