@@ -1,0 +1,179 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build - ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64 (using musl for static linking)
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-musl
+            artifact_name: nr
+            asset_name: nr-linux-x86_64
+
+          # Linux ARM64 (using musl for static linking)
+          - os: ubuntu-22.04
+            target: aarch64-unknown-linux-musl
+            artifact_name: nr
+            asset_name: nr-linux-aarch64
+
+          # macOS x86_64
+          - os: macOS-13
+            target: x86_64-apple-darwin
+            artifact_name: nr
+            asset_name: nr-macos-x86_64
+
+          # macOS ARM64 (Apple Silicon)
+          - os: macOS-14
+            target: aarch64-apple-darwin
+            artifact_name: nr
+            asset_name: nr-macos-aarch64
+
+          # Windows x86_64
+          - os: windows-2022
+            target: x86_64-pc-windows-msvc
+            artifact_name: nr.exe
+            asset_name: nr-windows-x86_64.exe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      # Install musl-tools for Linux musl builds
+      - name: Install musl-tools (Linux)
+        if: contains(matrix.target, 'musl')
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      # Install cross for aarch64 musl build
+      - name: Install cross
+        if: matrix.target == 'aarch64-unknown-linux-musl'
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.target }}-
+            ${{ runner.os }}-cargo-
+
+      - name: Build release binary (native)
+        if: matrix.target != 'aarch64-unknown-linux-musl'
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Build release binary (cross for aarch64)
+        if: matrix.target == 'aarch64-unknown-linux-musl'
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Prepare binary
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}" "dist/${{ matrix.asset_name }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: dist/${{ matrix.asset_name }}
+          retention-days: 1
+
+  create-release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nr-*
+          merge-multiple: true
+          path: dist
+
+      - name: Get latest tag
+        id: latest_tag
+        if: github.ref != 'refs/heads/master'
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changelog<<EOF" >> $GITHUB_OUTPUT
+            echo "Manual release build" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "changelog<<EOF" >> $GITHUB_OUTPUT
+            git log --oneline -20 >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.latest_tag.outputs.tag || format('v{0}', github.run_number) }}
+          name: Release ${{ steps.latest_tag.outputs.tag || format('v{0}', github.run_number) }}
+          body: |
+            ## Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Binaries
+            - `nr-windows-x86_64.exe` - Windows x86_64
+            - `nr-macos-x86_64` - macOS x86_64 (Intel)
+            - `nr-macos-aarch64` - macOS ARM64 (Apple Silicon)
+            - `nr-linux-x86_64` - Linux x86_64 (static musl)
+            - `nr-linux-aarch64` - Linux ARM64 (static musl)
+
+            ## Installation
+
+            ### Homebrew (macOS/Linux)
+            ```bash
+            brew tap liwuhou/formulae
+            brew install liwuhou/formulae/nr
+            ```
+
+            ### Cargo
+            ```bash
+            cargo install nr
+            ```
+
+            ### Manual
+            Download the binary for your platform and add it to your PATH.
+          files: dist/*
+          draft: false
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
