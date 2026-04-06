@@ -32,13 +32,13 @@ jobs:
             asset_name: nr-linux-aarch64
 
           # macOS x86_64
-          - os: macOS-13
+          - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: nr
             asset_name: nr-macos-x86_64
 
           # macOS ARM64 (Apple Silicon)
-          - os: macOS-14
+          - os: macos-latest
             target: aarch64-apple-darwin
             artifact_name: nr
             asset_name: nr-macos-aarch64
