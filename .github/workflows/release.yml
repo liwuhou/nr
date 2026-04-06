@@ -60,13 +60,8 @@ jobs:
 
       # Install musl-tools for Linux musl builds
       - name: Install musl-tools (Linux)
-        if: contains(matrix.target, 'musl')
+        if: contains(matrix.target, 'musl') && matrix.target != 'aarch64-unknown-linux-musl'
         run: sudo apt-get update && sudo apt-get install -y musl-tools
-
-      # Install cross for aarch64 musl build
-      - name: Install cross
-        if: matrix.target == 'aarch64-unknown-linux-musl'
-        run: cargo install cross --git https://github.com/cross-rs/cross
 
       - name: Cache cargo registry
         uses: actions/cache@v4
@@ -86,7 +81,10 @@ jobs:
 
       - name: Build release binary (cross for aarch64)
         if: matrix.target == 'aarch64-unknown-linux-musl'
-        run: cross build --release --target ${{ matrix.target }}
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          target: aarch64-unknown-linux-musl
+          args: --release
 
       - name: Prepare binary
         shell: bash
